@@ -1,14 +1,112 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ルーレット</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+    <style>
+      body {
+        font-family: sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f0f0f0;
+      }
+
+      #display {
+        font-size: 2em;
+        padding: 20px;
+        border: 2px solid #333;
+        margin-bottom: 20px;
+        min-width: 200px;
+        text-align: center;
+        background-color: #fff;
+        position: relative; /* スピンアウトの基準点 */
+        transition: transform 0.2s ease-out; /* スピンアウトのアニメーション */
+      }
+
+      #display.spinning {
+        /* 必要に応じて回転中のスタイル */
+      }
+
+      #display.spin-out {
+        transform: translateY(-20px) scale(1.1); /* 少し上に移動して拡大 */
+      }
+
+      button {
+        padding: 10px 20px;
+        font-size: 1em;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
     <div id="display">ここが変わる！</div>
     <button id="startButton">スタート</button>
-    <script src="script.js"></script>
-</body>
+    <script>
+      const displayElement = document.getElementById("display");
+      const startButton = document.getElementById("startButton");
+      const topics = [
+        "子供の頃の夢",
+        "最近ハマっていること",
+        "忘れられない旅の思い出",
+        "ちょっと自慢できること",
+        "未来の自分へのメッセージ",
+        "もしもタイムマシンがあったら",
+        "最近感動したこと",
+        "小さい頃の遊び",
+        "地元の好きなところ",
+        "チャレンジしてみたいこと",
+        "大切な言葉や座右の銘",
+        "ちょっと変わったコレクション",
+      ];
+
+      let intervalId;
+      let isRunning = false;
+      let decelerationTimeout;
+
+      startButton.addEventListener("click", () => {
+        if (isRunning) {
+          clearInterval(intervalId);
+          startButton.textContent = "停止中...";
+          isRunning = false;
+
+          let decelerationCount = 10; // 減速ステップ数
+          let initialInterval = 50; // 最初の切り替え間隔 (短く)
+          let finalInterval = 300; // 最後の切り替え間隔 (長く)
+          let step = 0;
+
+          const decelerate = () => {
+            if (step < decelerationCount) {
+              const interval =
+                initialInterval +
+                (finalInterval - initialInterval) * (step / decelerationCount);
+              const randomIndex = Math.floor(Math.random() * topics.length);
+              displayElement.textContent = topics[randomIndex];
+              decelerationTimeout = setTimeout(decelerate, interval);
+              step++;
+            } else {
+              startButton.textContent = "スタート";
+              displayElement.classList.add("spin-out"); // スピンアウトクラスを追加
+              setTimeout(() => {
+                displayElement.classList.remove("spin-out"); // 少し遅れてクラスを削除
+              }, 300); // スピンアウトの時間
+            }
+          };
+          decelerate();
+        } else {
+          displayElement.classList.remove("spin-out"); // 開始時にスピンアウトクラスを削除
+          intervalId = setInterval(() => {
+            const randomIndex = Math.floor(Math.random() * topics.length);
+            displayElement.textContent = topics[randomIndex];
+          }, 100);
+          startButton.textContent = "ストップ";
+          isRunning = true;
+        }
+      });
+    </script>
+  </body>
 </html>
